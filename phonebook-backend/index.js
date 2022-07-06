@@ -4,8 +4,16 @@ const app = express();
 app.use(express.json());
 
 const morgan = require('morgan');
-app.use(morgan('tiny'));
-
+morgan.token('response-body', (req, res) => JSON.stringify(req.body));
+app.use(morgan((tokens, req, res) => {
+    return [
+        tokens.method(req, res),
+        tokens.url(req, res),
+        tokens.status(req, res),
+        tokens['response-time'](req, res), 'ms',
+        tokens.method(req, res).toString() === 'POST' ? tokens['response-body'](req, res) : ""
+    ].join(' ')
+}));
 let persons = [
     {
         "id": 1,
