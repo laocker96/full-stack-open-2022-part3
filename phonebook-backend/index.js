@@ -53,13 +53,21 @@ app.delete('/api/persons/:id', (request, response) => {
 
 app.post('/api/persons/', (request, response) => {
     const body = request.body;
-    const person = {
-        id: Math.floor(Math.random() * 1000000000000),
-        name: body.name,
-        number: body.number
+    if (body.name === null || body.name === "" || body.number === null || body.number === "") {
+        response.status(400).send({ error: 'name or number can\'t be either null or empty string' })
     }
-    persons.push(person);
-    response.json(person);
+    else if (persons.find(person => person.name.toLocaleLowerCase() === body.name.toLocaleLowerCase())) {
+        response.status(400).send({ error: 'name must be unique' })
+    }
+    else {
+        const person = {
+            id: Math.floor(Math.random() * 1000000000000),
+            name: body.name,
+            number: body.number
+        }
+        persons.push(person);
+        response.json(person);
+    }
 })
 
 const PORT = 3001;
