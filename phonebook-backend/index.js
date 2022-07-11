@@ -87,10 +87,11 @@ app.post('/api/persons/', (request, response) => {
 app.put('/api/persons/:id', (request, response) => {
     const body = request.body;
     const id = Number(request.params.id);
-    persons.map(person => id === Number(body.id) ? body : person);
+    persons = [... persons.map(person => id === person.id ? body : person)];
     response.json(body);
 })
 
-const PORT = 3001;
-app.listen(PORT);
-console.log(`Server running on port ${PORT}`);
+const PORT = process.env.PORT || 3001
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`)
+})
