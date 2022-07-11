@@ -1,7 +1,10 @@
 const express = require('express');
-const app = express();
+const cors = require('cors');
 
+const app = express();
 app.use(express.json());
+
+app.use(cors());
 
 const morgan = require('morgan');
 morgan.token('response-body', (req, res) => JSON.stringify(req.body));
@@ -79,6 +82,13 @@ app.post('/api/persons/', (request, response) => {
         persons.push(person);
         response.json(person);
     }
+})
+
+app.put('/api/persons/:id', (request, response) => {
+    const body = request.body;
+    const id = Number(request.params.id);
+    persons.map(person => id === Number(body.id) ? body : person);
+    response.json(body);
 })
 
 const PORT = 3001;
