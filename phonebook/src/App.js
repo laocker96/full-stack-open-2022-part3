@@ -24,7 +24,7 @@ const App = () => {
 
   return (
     <div>
-      <h2>Phonenook</h2>
+      <h2>Phonebook</h2>
       <Notification notification={notification} />
       <Filter searchedName={searchedName} setSearchedName={setSearchedName} />
       <PersonForm persons={persons} setPersons={setPersons} setNotification={setNotification} />

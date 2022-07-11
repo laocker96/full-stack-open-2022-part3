@@ -6,6 +6,8 @@ app.use(express.json());
 
 app.use(cors());
 
+app.use(express.static('build'))
+
 const morgan = require('morgan');
 morgan.token('response-body', (req, res) => JSON.stringify(req.body));
 app.use(morgan((tokens, req, res) => {
@@ -87,7 +89,7 @@ app.post('/api/persons/', (request, response) => {
 app.put('/api/persons/:id', (request, response) => {
     const body = request.body;
     const id = Number(request.params.id);
-    persons = [... persons.map(person => id === person.id ? body : person)];
+    persons = [...persons.map(person => id === person.id ? body : person)];
     response.json(body);
 })
 
