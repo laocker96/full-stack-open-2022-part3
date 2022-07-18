@@ -1,4 +1,3 @@
-import axios from 'axios';
 import { useEffect, useState } from 'react'
 import Filter from './components/Filter';
 import Notification from './components/Notification';
@@ -20,7 +19,7 @@ const App = () => {
       });
   }, []);
 
-  const filteredPersons = searchedName != "" ? persons.filter(person => person.name.toLowerCase().includes(searchedName.toLowerCase())) : persons;
+  const filteredPersons = searchedName !== "" ? persons.filter(person => person.name.toLowerCase().includes(searchedName.toLowerCase())) : persons;
 
   return (
     <div>

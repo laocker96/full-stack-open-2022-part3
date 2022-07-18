@@ -10,7 +10,7 @@ const PersonForm = ({ persons, setPersons, setNotification }) => {
 
         event.preventDefault();
 
-        const findPerson = persons.find(person => person.name.toLowerCase() == newName.toLowerCase());
+        const findPerson = persons.find(person => person.name.toLowerCase() === newName.toLowerCase());
 
         if (findPerson) {
             if (window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)) {
@@ -28,6 +28,15 @@ const PersonForm = ({ persons, setPersons, setNotification }) => {
                         });
                         setTimeout(() => {
                             setNotification(null);
+                        }, 2000);
+                    })
+                    .catch(error => {
+                        setNotification({
+                            message: error.response.data.error,
+                            class: 'error'
+                        });
+                        setTimeout(() => {
+                            setNotification(null)
                         }, 2000);
                     })
                     .catch(() => {
@@ -61,6 +70,14 @@ const PersonForm = ({ persons, setPersons, setNotification }) => {
                     setTimeout(() => {
                         setNotification(null)
                     }, 2000);
+                }).catch(error => {
+                    setNotification({
+                        message: error.response.data.error,
+                        class: 'error'
+                    });
+                    setTimeout(() => {
+                        setNotification(null)
+                    }, 2000);
                 });
         }
     }
@@ -78,10 +95,10 @@ const PersonForm = ({ persons, setPersons, setNotification }) => {
             <h2>add a new</h2>
             <form onSubmit={handleSubmit}>
                 <div>
-                    name: <input value={newName} onChange={handleNameChange} required />
+                    name: <input value={newName} onChange={handleNameChange} />
                 </div>
                 <div>
-                    number: <input type="tel" value={newPhone} onChange={handlePhoneChange} pattern="[0-9]{2}-[0-9]{2}-[0-9]{7}" required />
+                    number: <input type="tel" value={newPhone} onChange={handlePhoneChange} />
                 </div>
                 <div>
                     <button type="submit">add</button>
