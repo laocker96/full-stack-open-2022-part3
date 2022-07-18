@@ -23,30 +23,6 @@ app.use(morgan((tokens, req, res) => {
     ].join(' ')
 }));
 
-// Unused
-/* let persons = [
-    {
-        "id": 1,
-        "name": "Arto Hellas",
-        "number": "040-123456"
-    },
-    {
-        "id": 2,
-        "name": "Ada Lovelace",
-        "number": "39-44-5323523"
-    },
-    {
-        "id": 3,
-        "name": "Dan Abramov",
-        "number": "12-43-234345"
-    },
-    {
-        "id": 4,
-        "name": "Mary Poppendieck",
-        "number": "39-23-6423122"
-    }
-];
- */
 app.get('/api/info', (request, response) => {
     Person.count().then(personsCount => {
         const html = `<p>Phonebook has info for ${personsCount} people</p><p>${new Date()}</p>`
@@ -60,53 +36,79 @@ app.get('/api/persons', (request, response) => {
     )
 })
 
-app.get('/api/persons/:id', (request, response) => {
+app.get('/api/persons/:id', (request, response, next) => {
     Person.findById(request.params.id)
         .then(person => {
-            response.json(person);
+            if (person) {
+                response.json(person);
+            } else {
+                response.status(404).send({ error: 'Person Not Found' })
+            }
         })
-        .catch(error => response.status(404).send({ error: 'Person Not Found' }))
+        .catch(error => next(error))
 })
 
-app.delete('/api/persons/:id', (request, response) => {
-    Person.deleteOne({ "_id": request.params.id })
-        .then(() => response.status(204).end())
-        .catch(error => response.status(404).send({ error: 'Person Not Found' }))
+app.delete('/api/persons/:id', (request, response, next) => {
+    Person.findByIdAndDelete(request.params.id)
+        .then(person => {
+            if (person) {
+                response.status(204).end();
+            } else {
+                response.status(404).send({ error: 'Person Not Found' })
+            }
+        })
+        .catch(error => next(error))
 })
 
-app.post('/api/persons/', (request, response) => {
+app.post('/api/persons', (request, response) => {
     const body = request.body;
-    if (body.name === null || body.name === "" || body.name === undefined || body.number === null || body.number === "" || body.number === undefined) {
+    if (!body.name || !body.number) {
         response.status(400).send({ error: 'name or number can\'t be either null or empty string' })
     }
     else {
-        Person.find({ 'name': body.name?.toLocaleLowerCase() }).then(person => {
-            if (person.length !== 0) {
-                response.status(400).send({ error: 'name must be unique' })
-            } else {
-                const person = new Person({
-                    name: body.name,
-                    number: body.number
-                });
-                person.save()
-                    .then(savedPerson => response.json(savedPerson));
-            }
-        })
+        const person = new Person({
+            name: body.name,
+            number: body.number
+        });
+        person.save()
+            .then(savedPerson => response.json(savedPerson));
     }
 })
 
-app.put('/api/persons/:id', (request, response) => {
+app.put('/api/persons/:id', (request, response, next) => {
     const body = request.body;
-    Person.updateOne({ "_id": request.params.id },
-        {
-            $set: {
-                name: body.name,
-                number: body.number
+    const person = {
+        name: body.name,
+        number: body.number
+    }
+
+    Person.findByIdAndUpdate(request.params.id, person, { new: true })
+        .then((updatedPerson) => {
+            if (updatedPerson) {
+                response.json(updatedPerson);
+            } else {
+                response.status(404).send({ error: 'Person Not Found' });
             }
-        })
-        .then(() => response.json(body))
-        .catch(error => response.status(404).send({ error: 'Person Not Found' }))
+        }).catch(error => next(error))
 })
+
+const unknownEndpoint = (request, response) => {
+    response.status(404).send({ error: 'unknown endpoint' })
+}
+
+// handler of requests with unknown endpoint
+app.use(unknownEndpoint)
+
+const errorHandler = (error, request, response, next) => {
+    console.error(error.message)
+
+    if (error.name === 'CastError') {
+        return response.status(400).send({ error: 'malformatted id' })
+    }
+
+    next(error)
+}
+app.use(errorHandler)
 
 const PORT = process.env.PORT
 app.listen(PORT, () => {
