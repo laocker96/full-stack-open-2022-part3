@@ -15,7 +15,7 @@ const Persons = ({ filteredPersons, persons, setPersons, setNotification }) => {
                     setTimeout(() => {
                         setNotification(null);
                     }, 2000);
-                    setPersons(persons.filter(p => p.id != person.id));
+                    setPersons(persons.filter(p => p.id !== person.id));
                 })
                 .catch(() => {
                     setNotification({
@@ -39,7 +39,7 @@ const Persons = ({ filteredPersons, persons, setPersons, setNotification }) => {
                     <button onClick={() => handleClick(person)}>delete</button>
                 </p>
             )}
-            {filteredPersons.length == 0 &&
+            {filteredPersons.length === 0 &&
                 <p>No persons found</p>
             }
         </>

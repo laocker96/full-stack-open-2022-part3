@@ -17,7 +17,9 @@ const personSchema = new mongoose.Schema({
     },
     number: {
         type: String,
-        required: true
+        minLength: 8,
+        validate: [/[0-9]{2,3}-[0-9]{7,}/, "Phone number must start with 2 or 3 digits followed by '-' and followed by at least 7 digits"],
+        required: true,
     }
 })
 

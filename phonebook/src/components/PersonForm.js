@@ -10,67 +10,63 @@ const PersonForm = ({ persons, setPersons, setNotification }) => {
 
         event.preventDefault();
 
-        const findPerson = persons.find(person => person.name.toLowerCase() === newName.toLowerCase());
+        const person = {
+            name: newName,
+            number: newPhone
+        };
 
-        if (findPerson) {
-            if (window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)) {
-
-                const findPersonCopy = { ...findPerson, number: newPhone };
-                phonebookService
-                    .updatePerson(findPersonCopy)
-                    .then(updatedPerson => {
-                        setNewName("");
-                        setNewPhone("");
-                        setPersons(persons.map(person => person.id === updatedPerson.id ? updatedPerson : person));
-                        setNotification({
-                            message: `Updated ${updatedPerson.name}'s phone number`,
-                            class: 'info'
-                        });
-                        setTimeout(() => {
-                            setNotification(null);
-                        }, 2000);
-                    })
-                    .catch(error => {
-                        setNotification({
-                            message: error.response.data.error,
-                            class: 'error'
-                        });
-                        setTimeout(() => {
-                            setNotification(null)
-                        }, 2000);
-                    })
-                    .catch(() => {
-                        setNotification({
-                            message: `Information of ${findPerson.name} has already been removed from server`,
-                            class: 'error'
-                        });
-                        setTimeout(() => {
-                            setNotification(null);
-                        }, 2000);
-                        setPersons(persons.filter(p => p.id !== findPerson.id));
-                    });
-            }
-        } else {
-
-            const person = {
-                name: newName,
-                number: newPhone
-            };
-
-            phonebookService
-                .savePerson(person)
-                .then(savePerson => {
-                    setPersons(persons.concat(savePerson));
-                    setNewName("");
-                    setNewPhone("");
-                    setNotification({
-                        message: `Added ${savePerson.name}`,
-                        class: 'info'
-                    });
-                    setTimeout(() => {
-                        setNotification(null)
-                    }, 2000);
-                }).catch(error => {
+        phonebookService
+            .savePerson(person)
+            .then(savePerson => {
+                setPersons(persons.concat(savePerson));
+                setNewName("");
+                setNewPhone("");
+                setNotification({
+                    message: `Added ${savePerson.name}`,
+                    class: 'info'
+                });
+                setTimeout(() => {
+                    setNotification(null)
+                }, 2000);
+            }).catch(error => {
+                if (error.response.status === 409) {
+                    if (window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)) {
+                        const findPerson = persons.find(person => person.name.toLowerCase() === newName.toLowerCase());
+                        phonebookService
+                            .updatePerson({ ...findPerson, number: newPhone })
+                            .then(updatedPerson => {
+                                setNewName("");
+                                setNewPhone("");
+                                setPersons(persons.map(person => person.id === updatedPerson.id ? updatedPerson : person));
+                                setNotification({
+                                    message: `Updated ${updatedPerson.name}'s phone number`,
+                                    class: 'info'
+                                });
+                                setTimeout(() => {
+                                    setNotification(null);
+                                }, 2000);
+                            })
+                            .catch(error => {
+                                setNotification({
+                                    message: error.response.data.error,
+                                    class: 'error'
+                                });
+                                setTimeout(() => {
+                                    setNotification(null)
+                                }, 2000);
+                            })
+                            .catch(() => {
+                                setNotification({
+                                    message: `Information of ${person.name} has already been removed from server`,
+                                    class: 'error'
+                                });
+                                setTimeout(() => {
+                                    setNotification(null);
+                                }, 2000);
+                                setPersons(persons.filter(p => p.id !== findPerson.id));
+                            });
+                    }
+                } else {
                     setNotification({
                         message: error.response.data.error,
                         class: 'error'
@@ -78,10 +74,9 @@ const PersonForm = ({ persons, setPersons, setNotification }) => {
                     setTimeout(() => {
                         setNotification(null)
                     }, 2000);
-                });
-        }
+                }
+            });
     }
-
     const handleNameChange = (event) => {
         setNewName(event.target.value);
     }

@@ -57,13 +57,19 @@ app.delete('/api/persons/:id', (request, response, next) => {
 
 app.post('/api/persons', (request, response, next) => {
     const body = request.body;
-    const person = new Person({
-        name: body.name,
-        number: body.number
-    });
-    person.save()
-        .then(savedPerson => response.json(savedPerson))
-        .catch(error => next(error));
+    Person.find({ name: body.name }).then(person => {
+        if (person.length !== 0) {
+            response.status(409).send({ error: 'Person is already in notebook' })
+        } else {
+            const person = new Person({
+                name: body.name,
+                number: body.number
+            });
+            person.save()
+                .then(savedPerson => response.json(savedPerson))
+                .catch(error => next(error));
+        }
+    })
 })
 
 app.put('/api/persons/:id', (request, response, next) => {
@@ -72,7 +78,6 @@ app.put('/api/persons/:id', (request, response, next) => {
         name: body.name,
         number: body.number
     }
-
     Person.findByIdAndUpdate(request.params.id, person, { new: true, runValidators: true, context: 'query' })
         .then((updatedPerson) => {
             if (updatedPerson) {
@@ -87,7 +92,6 @@ const unknownEndpoint = (request, response) => {
     response.status(404).send({ error: 'unknown endpoint' })
 }
 
-// handler of requests with unknown endpoint
 app.use(unknownEndpoint)
 
 const errorHandler = (error, request, response, next) => {
