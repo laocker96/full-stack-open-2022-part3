@@ -1,8 +1,8 @@
-const mongoose = require('mongoose');
+const mongoose = require('mongoose')
 
-const url = process.env.MONGODB_URI;
+const url = process.env.MONGODB_URI
 
-mongoose.connect(url).then(result => {
+mongoose.connect(url).then(() => {
     console.log('connected to MongoDB')
 })
     .catch((error) => {
@@ -18,7 +18,7 @@ const personSchema = new mongoose.Schema({
     number: {
         type: String,
         minLength: 8,
-        validate: [/[0-9]{2,3}-[0-9]{7,}/, "Phone number must start with 2 or 3 digits followed by '-' and followed by at least 7 digits"],
+        validate: [/[0-9]{2,3}-[0-9]{7,}/, 'Phone number must start with 2 or 3 digits followed by "-" and followed by at least 7 digits'],
         required: true,
     }
 })

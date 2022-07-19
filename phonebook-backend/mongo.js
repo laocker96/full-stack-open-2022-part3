@@ -25,16 +25,16 @@ if (process.argv.length < 3) {
 if (process.argv.length === 3) {
     mongoose
         .connect(url)
-        .then(result => {
+        .then(() => {
             console.log('connected')
-            console.log('Searching data ...\n');
+            console.log('Searching data ...\n')
             return Person.find({}).then(result => {
-                console.log('phonebook: ');
+                console.log('phonebook: ')
                 result.forEach(person => {
-                    console.log(`${person.name} ${person.number}`);
-                });
+                    console.log(`${person.name} ${person.number}`)
+                })
                 if (result.length === 0) {
-                    console.log('phonebook is empty');
+                    console.log('phonebook is empty')
                 }
             })
         })
@@ -52,7 +52,7 @@ if (process.argv.length === 4) {
 if (process.argv.length === 5) {
     mongoose
         .connect(url)
-        .then(result => {
+        .then(() => {
             console.log('connected')
             const person = new Person({
                 name: name,
@@ -60,14 +60,14 @@ if (process.argv.length === 5) {
             })
             return person.save()
         }).then(() => {
-            console.log('Person added to the phonebook');
-            mongoose.connection.close();
+            console.log('Person added to the phonebook')
+            mongoose.connection.close()
         }).catch(err => console.log(err))
 }
 
 if (process.argv.length > 5) {
-    console.log('Invalid command cli! Please check arguments');
-    process.exit(1);
+    console.log('Invalid command cli! Please check arguments')
+    process.exit(1)
 }
 
 
